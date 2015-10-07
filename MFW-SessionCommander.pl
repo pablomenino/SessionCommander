@@ -3,7 +3,7 @@
 ################################################################################
 #                                                                              #
 #  MFW Session Commander                                                       #
-#  Version 0.5.3                                                               #
+#  Version 0.5.3.1                                                             #
 #                                                                              #
 #  If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...  #
 #                                                                              #
@@ -24,6 +24,9 @@
 #  -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 #                                                                              #
 #  Version Control:                                                            #
+#                                                                              #
+#    * Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.3.1            #
+#      - Remote command support (ssh).                                         #
 #                                                                              #
 #    * Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.3              #
 #      - Fix bugs on vnc password.                                             #
@@ -73,7 +76,7 @@ use Fcntl;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.5.3";
+my $version = "0.5.3.1";
 my $config_version = "0.5";
 
 # Configuration file format ... that can be opened
@@ -133,7 +136,7 @@ my $show_cmd = 0 ;
 my $command = "" ;
 
 # Configuration variables
-my ($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = "";
+my ($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = "";
 
 # Configuration dir
 my $cfg_dir_filename = $home . "/.MFW-TechNet/SessionCommander/" ;
@@ -265,7 +268,7 @@ sub make_log_init()
 #                                                                              #
 ################################################################################
 
-ConfVersion	0.5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+ConfVersion	0.5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
 
 # IMPORTANT:
 #  Use TAB's to separate config.
@@ -287,9 +290,10 @@ ConfVersion	0.5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
 #   LogMask: Mask for logging file.
 #   UseSock: Use tsocks.
 #   OptCom: Use extra options on command line.
+#   SSHRemCom: Remote command on SHH sesion.
 
-# Name	ComType	HostName	User	Port	Password	x11Forward	Loggin	LogPath	FixChars	FixCompactOriginal	LogMask	UseSock	OptCom
-localhost	ssh2	127.0.0.1	22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	0600	NULL	NULL
+# Name	ComType	HostName	User	Port	Password	x11Forward	Loggin	LogPath	FixChars	LogMask	UseSock	OptCom	SSHRemCom
+localhost	ssh2	127.0.0.1	22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	0600	NULL	NULL	NULL
 
 # End file.
 ";
@@ -322,7 +326,7 @@ sub print_sessions_names()
 		if ( $nth ne "#" and $nth ne "" )
 		{
 
-			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $_, 14);
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = split( "\t", $_, 15);
 			if ($Name ne "ConfVersion")
 			{
 				print " -->> Name: $Name - ComType: $ComType - HostName: $HostName - Port: $Port\n";
@@ -358,7 +362,7 @@ sub print_session_config()
 		if ( $nth ne "#" and $nth ne "" )
 		{
 
-			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $_, 14);
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = split( "\t", $_, 15);
 			if ($Name eq $config_name)
 			{
 				print " -->> Name: $Name - ComType: $ComType - HostName: $HostName - Port: $Port\n";
@@ -428,6 +432,10 @@ switch ($ComType)
 				$command = $command . " " . $User. "@";
 			}
 			$command = $command . $HostName . " -p " . $Port;
+			if ($SSHRemCom ne "NULL")
+			{
+				$command = $command . " " . $SSHRemCom;
+			}
 			if ($Loggin eq "true")
 			{
 				$command = $command . " | $tee -a \"" . $logdir . $LogPath . $Name . $nano . $extension_log . "\"";
@@ -617,7 +625,7 @@ sub check_config_version()
 		if ( $nth ne "#" and $nth ne "" )
 		{
 
-			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $_, 14);
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = split( "\t", $_, 15);
 		
 			if ( $Name eq "ConfVersion" )
 			{
@@ -684,7 +692,7 @@ sub read_config()
 		if ( $nth ne "#" and $nth ne "" )
 		{
 
-			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $_, 14);
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = split( "\t", $_, 15);
 		
 			if ( $Name eq $ARGV[1] )
 			{
@@ -699,7 +707,7 @@ sub read_config()
 
 if ($findsession eq "true")
 {
-	($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $tmp_line, 14);
+	($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = split( "\t", $tmp_line, 15);
 }
 
 return $return_value;

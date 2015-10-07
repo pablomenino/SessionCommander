@@ -3,7 +3,7 @@
 ################################################################################
 #                                                                              #
 #  MFW Session Commander                                                       #
-#  Version 0.5                                                                 #
+#  Version 0.5.1                                                               #
 #                                                                              #
 #  If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...  #
 #                                                                              #
@@ -24,6 +24,9 @@
 #  -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 #                                                                              #
 #  Version Control:                                                            #
+#                                                                              #
+#    * Tue Mar 2 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.1              #
+#      - Fix bugs on tsock (now is executed in the same console).              #
 #                                                                              #
 #    * Tue Mar 2 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5                #
 #      - tsock support (proxy).                                                #
@@ -62,7 +65,8 @@ use Fcntl;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.5";
+my $version = "0.5.1";
+my $config_version = "0.5";
 
 # Configuration file format ... that can be opened
 my @version_check = ("0.1", "0.2", "0.3", "0.4", "0.5");
@@ -102,8 +106,8 @@ chomp($vim);
 chomp($gedit);
 chomp($rm);
 
-my $command_tsock_on = "source ". $tsocks . " on";
-my $command_tsock_off = "source ". $tsocks . " off";
+my $command_tsock_on = "source " . $tsocks . " on;";
+my $command_tsock_off = "source " . $tsocks . " off;";
 
 # The default directory to be store the log files
 my $logdir = $home . "/Syslog/" ;
@@ -574,7 +578,7 @@ sub check_config_version()
 		}
 		
 		# If old version, then migrato to new.
-		if ( ($cfg_file_support == 0) && ($HostName ne $version) )
+		if ( ($cfg_file_support == 0) && ($HostName ne $config_version) )
 		{
 			# Not implemented ... is not necessary on this version
 			# &migrate_config($from_version, $to_version);

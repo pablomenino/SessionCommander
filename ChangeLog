@@ -1,0 +1,17 @@
+Version Control:
+
+    * 0.4 (Mon Mar 6 2010 Pablo Meniño <pablo.menino@gmail.com>)
+      + Session control for vnc.
+      + Better configuration file.
+
+    * 0.3 (Mon Mar 4 2010 Pablo Meniño <pablo.menino@gmail.com>)
+      + Fix non printable character in logging file.
+
+    * 0.2 (Mon Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com>)
+      + Session control for telnet.
+      + logging to file.
+
+    * 0.1 (Mon Mar 1 2010 Pablo Meniño <pablo.menino@gmail.com>)
+      + Initial beta version.
+      + Session control for ssh2.
+

@@ -1,4 +1,7 @@
-# SessionCommander
-A Session Manger Tool
+MFW SessionCommander Tool - A Session Manger Tool
+Version 0.4
 
-Initial beta version.
+If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...
+
+Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino@gmail.com>
+

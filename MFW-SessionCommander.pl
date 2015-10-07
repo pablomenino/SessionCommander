@@ -3,7 +3,7 @@
 ################################################################################
 #                                                                              #
 #  MFW Session Commander                                                       #
-#  Version 0.5.2                                                               #
+#  Version 0.5.3                                                               #
 #                                                                              #
 #  If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...  #
 #                                                                              #
@@ -24,6 +24,9 @@
 #  -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 #                                                                              #
 #  Version Control:                                                            #
+#                                                                              #
+#    * Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.3              #
+#      - Fix bugs on vnc password.                                             #
 #                                                                              #
 #    * Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.2              #
 #      - RDP support.                                                          #
@@ -70,7 +73,7 @@ use Fcntl;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.5.2";
+my $version = "0.5.3";
 my $config_version = "0.5";
 
 # Configuration file format ... that can be opened
@@ -487,9 +490,13 @@ switch ($ComType)
 			}
 			if ($Password ne "NULL")
 			{
-				$command = $command . " echo \"" . $Password . "\" ";
+				$command = $command . " echo \"" . $Password . "\" | ";
 			}
 			$command = $command . $vnc;
+			if ($Password ne "NULL")
+			{
+				$command = $command . " -passwdInput true";
+			}
 			if ($OptCom ne "NULL")
 			{
 				$command = $command . " " . $OptCom;

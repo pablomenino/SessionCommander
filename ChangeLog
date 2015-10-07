@@ -1,5 +1,8 @@
 Version Control:
 
+    * 0.5.3 (Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com>)
+      + Fix bugs on vnc password.
+
     * 0.5.2 (Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com>)
       + RDP support.
       + RDP/VNC support the password feature.

@@ -1,5 +1,5 @@
 MFW SessionCommander Tool - A Session Manger Tool
-Version 0.5.1
+Version 0.5.2
 
 If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...
 

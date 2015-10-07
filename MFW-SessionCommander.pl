@@ -3,7 +3,7 @@
 ################################################################################
 #                                                                              #
 #  MFW Session Commander                                                       #
-#  Version 0.5.1                                                               #
+#  Version 0.5.2                                                               #
 #                                                                              #
 #  If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...  #
 #                                                                              #
@@ -24,6 +24,11 @@
 #  -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
 #                                                                              #
 #  Version Control:                                                            #
+#                                                                              #
+#    * Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.2              #
+#      - RDP support.                                                          #
+#      - RDP/VNC support the password feature.                                 #
+#      - Now we use the extra options configure in the configuration file.     #
 #                                                                              #
 #    * Tue Mar 2 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.1              #
 #      - Fix bugs on tsock (now is executed in the same console).              #
@@ -65,7 +70,7 @@ use Fcntl;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.5.1";
+my $version = "0.5.2";
 my $config_version = "0.5";
 
 # Configuration file format ... that can be opened
@@ -94,8 +99,11 @@ my $tar = `which tar`;
 my $vim = `which vim`;
 my $gedit = `which gedit`;
 my $rm = `which rm`;
-my $tsocks = "/usr/bin/tsocks";
-my $vnc = "/usr/bin/vncviewer";
+my $tsocks = `which tsocks`;
+my $rdesktop = `which rdesktop`;
+my $vnc = `which vncviewer`;
+# my $tsocks = "/usr/bin/tsocks";
+# my $vnc = "/usr/bin/vncviewer";
 # Remove return line
 chomp($ssh);
 chomp($telnet);
@@ -105,6 +113,9 @@ chomp($tar);
 chomp($vim);
 chomp($gedit);
 chomp($rm);
+chomp($tsocks);
+chomp($rdesktop);
+chomp($vnc);
 
 my $command_tsock_on = "source " . $tsocks . " on;";
 my $command_tsock_off = "source " . $tsocks . " off;";
@@ -119,7 +130,7 @@ my $show_cmd = 0 ;
 my $command = "" ;
 
 # Configuration variables
-my ($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock) = "";
+my ($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = "";
 
 # Configuration dir
 my $cfg_dir_filename = $home . "/.MFW-TechNet/SessionCommander/" ;
@@ -251,7 +262,7 @@ sub make_log_init()
 #                                                                              #
 ################################################################################
 
-ConfVersion	0.5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+ConfVersion	0.5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
 
 # IMPORTANT:
 #  Use TAB's to separate config.
@@ -272,12 +283,12 @@ ConfVersion	0.5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
 #   FixCompactOriginal: If FixChars is true, then compact in tar.gz format the original file. (Only for ssh2 and telnet).
 #   LogMask: Mask for logging file.
 #   UseSock: Use tsocks.
+#   OptCom: Use extra options on command line.
 
-# Name	ComType	HostName	User	Port	Password	x11Forward	Loggin	LogPath	FixChars	LogMask	UseSock
-localhost	ssh2	127.0.0.1	22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	0600	NULL
+# Name	ComType	HostName	User	Port	Password	x11Forward	Loggin	LogPath	FixChars	FixCompactOriginal	LogMask	UseSock	OptCom
+localhost	ssh2	127.0.0.1	22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	0600	NULL	NULL
 
 # End file.
-
 ";
 		
 	sysopen(INITCFGFILE, $file_to_init, O_RDWR|O_EXCL|O_CREAT , $Mask_Dir);
@@ -308,7 +319,7 @@ sub print_sessions_names()
 		if ( $nth ne "#" and $nth ne "" )
 		{
 
-			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock) = split( "\t", $_, 13);
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $_, 14);
 			if ($Name ne "ConfVersion")
 			{
 				print " -->> Name: $Name - ComType: $ComType - HostName: $HostName - Port: $Port\n";
@@ -344,7 +355,7 @@ sub print_session_config()
 		if ( $nth ne "#" and $nth ne "" )
 		{
 
-			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock) = split( "\t", $_, 13);
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $_, 14);
 			if ($Name eq $config_name)
 			{
 				print " -->> Name: $Name - ComType: $ComType - HostName: $HostName - Port: $Port\n";
@@ -401,6 +412,10 @@ switch ($ComType)
 				$command = $tsocks . " ";
 			}
 			$command = $command . $ssh;
+			if ($OptCom ne "NULL")
+			{
+				$command = $command . " " . $OptCom;
+			}
 			if ($x11Forward eq "true")
 			{
 				$command = $command . " -X";
@@ -436,6 +451,10 @@ switch ($ComType)
 				$command = $tsocks . " ";
 			}
 			$command = $command . $telnet;
+			if ($OptCom ne "NULL")
+			{
+				$command = $command . " " . $OptCom;
+			}
 			if ($User ne "NULL")
 			{
 				$command = $command . " -l " . $User;
@@ -466,8 +485,51 @@ switch ($ComType)
 			{
 				$command = $tsocks . " ";
 			}
+			if ($Password ne "NULL")
+			{
+				$command = $command . " echo \"" . $Password . "\" ";
+			}
 			$command = $command . $vnc;
+			if ($OptCom ne "NULL")
+			{
+				$command = $command . " " . $OptCom;
+			}
 			$command = $command . " " . $HostName . "::" . $Port;
+			# Open tsocks
+			if ($UseSock eq "true")
+			{
+				system($command_tsock_on);
+			}
+			$show_cmd && print "% $command\n" ;
+			system($command);
+			#system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
+			# close tsocks
+			if ($UseSock eq "true")
+			{
+				system($command_tsock_off);
+			}
+			
+		}
+		case "RDP"
+		{
+			if ($UseSock eq "true")
+			{
+				$command = $tsocks . " ";
+			}
+			$command = $command . $rdesktop;
+			if ($User ne "NULL")
+			{
+				$command = $command . " -u " . $User;
+			}
+			if ($Password ne "NULL")
+			{
+				$command = $command . " -p " . $Password;
+			}
+			if ($OptCom ne "NULL")
+			{
+				$command = $command . " " . $OptCom;
+			}
+			$command = $command . " " . $HostName . ":" . $Port;
 			# Open tsocks
 			if ($UseSock eq "true")
 			{
@@ -548,7 +610,7 @@ sub check_config_version()
 		if ( $nth ne "#" and $nth ne "" )
 		{
 
-			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock) = split( "\t", $_, 13);
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $_, 14);
 		
 			if ( $Name eq "ConfVersion" )
 			{
@@ -615,7 +677,7 @@ sub read_config()
 		if ( $nth ne "#" and $nth ne "" )
 		{
 
-			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock) = split( "\t", $_, 13);
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $_, 14);
 		
 			if ( $Name eq $ARGV[1] )
 			{
@@ -630,7 +692,7 @@ sub read_config()
 
 if ($findsession eq "true")
 {
-	($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock) = split( "\t", $tmp_line, 13);
+	($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom) = split( "\t", $tmp_line, 14);
 }
 
 return $return_value;

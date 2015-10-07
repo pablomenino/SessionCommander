@@ -1,5 +1,10 @@
 Version Control:
 
+    * 0.5.2 (Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com>)
+      + RDP support.
+      + RDP/VNC support the password feature.
+      + Now we use the extra options configure in the configuration file.
+
     * 0.5.1 (Tue Mar 2 2010 Pablo Meniño <pablo.menino@gmail.com>)
       + Fix bugs on tsock (now is executed in the same console).
 

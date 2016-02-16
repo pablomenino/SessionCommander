@@ -1,34 +1,39 @@
 Version Control:
 
-    * 0.5.3.1 (Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.5.3.2 (15-02-2016)
+      + Project renamed to SessionCommander.
+      + General bug fixes.
+      + Documentation added.
+
+    * 0.5.3.1 (03-03-2010)
       + Remote command support (ssh).
 
-    * 0.5.3 (Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.5.3 (03-03-2010)
       + Fix bugs on vnc password.
 
-    * 0.5.2 (Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.5.2 (03-03-2010)
       + RDP support.
       + RDP/VNC support the password feature.
       + Now we use the extra options configure in the configuration file.
 
-    * 0.5.1 (Tue Mar 2 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.5.1 (02-03-2010)
       + Fix bugs on tsock (now is executed in the same console).
 
-    * 0.5 (Tue Mar 2 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.5 (02-03-2010)
       + tsock support (proxy).
 
-    * 0.4 (Mon Mar 1 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.4 (01-03-2010)
       + Session control for vnc.
       + Better configuration file.
 
-    * 0.3 (Sun Feb 28 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.3 (28-02-2010)
       + Fix non printable character in logging file.
 
-    * 0.2 (Thu Feb 25 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.2 (25-02-2010)
       + Session control for telnet.
       + logging to file.
 
-    * 0.1 (Mon Feb 22 2010 Pablo Meniño <pablo.menino@gmail.com>)
+    * 0.1 (22-02-2010)
       + Initial beta version.
       + Session control for ssh2.
 

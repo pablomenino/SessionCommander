@@ -2,60 +2,10 @@
 
 ################################################################################
 #                                                                              #
-#  MFW Session Commander                                                       #
-#  Version 0.5.3.1                                                             #
+#  Session Commander                                                           #
+#  Version 0.5.3.2                                                             #
 #                                                                              #
-#  If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...  #
-#                                                                              #
-#  Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino@gmail.com>      #
-#                                                                              #
-#  -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
-#                                                                              #
-#  This program is free software; you can redistribute it and/or modify        #
-#  it under the terms of the GNU General Public License as published by        #
-#  the Free Software Foundation; either version 2 of the License, or           #
-#  (at your option) any later version.                                         #
-#                                                                              #
-#  This program is distributed in the hope that it will be useful,             #
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of              #
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               #
-#  GNU General Public License for more details.                                #
-#                                                                              #
-#  -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- #
-#                                                                              #
-#  Version Control:                                                            #
-#                                                                              #
-#    * Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.3.1            #
-#      - Remote command support (ssh).                                         #
-#                                                                              #
-#    * Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.3              #
-#      - Fix bugs on vnc password.                                             #
-#                                                                              #
-#    * Wed Mar 3 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.2              #
-#      - RDP support.                                                          #
-#      - RDP/VNC support the password feature.                                 #
-#      - Now we use the extra options configure in the configuration file.     #
-#                                                                              #
-#    * Tue Mar 2 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5.1              #
-#      - Fix bugs on tsock (now is executed in the same console).              #
-#                                                                              #
-#    * Tue Mar 2 2010 Pablo Meniño <pablo.menino@gmail.com> 0.5                #
-#      - tsock support (proxy).                                                #
-#                                                                              #
-#    * Mon Mar 1 2010 Pablo Meniño <pablo.menino@gmail.com> 0.4                #
-#      - Session control for vnc.                                              #
-#      - Better configuration file.                                            #
-#                                                                              #
-#    * Sun Feb 28 2010 Pablo Meniño <pablo.menino@gmail.com> 0.3               #
-#      - Fix non printable character in logging file.                          #
-#                                                                              #
-#    * Thu Feb 25 2010 Pablo Meniño <pablo.menino@gmail.com> 0.2               #
-#      - Session control for telnet.                                           #
-#      - logging to file.                                                      #
-#                                                                              #
-#    * Mon Feb 22 2010 Pablo Meniño <pablo.menino@gmail.com> 0.1               #
-#      - Initial beta version.                                                 #
-#      - Session control for ssh2.                                             #
+#  Copyright © 2016 - Pablo Meniño <pablo.menino@gmail.com>                    #
 #                                                                              #
 ################################################################################
 
@@ -76,7 +26,7 @@ use Fcntl;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.5.3.1";
+my $version = "0.5.3.2";
 my $config_version = "0.5";
 
 # Configuration file format ... that can be opened
@@ -133,16 +83,16 @@ my $logdir = $home . "/Syslog/" ;
 my $show_cmd = 0 ;
 
 # Command to execute
-my $command = "" ;
+my $command = " " ;
 
 # Configuration variables
 my ($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = "";
 
 # Configuration dir
-my $cfg_dir_filename = $home . "/.MFW-TechNet/SessionCommander/" ;
+my $cfg_dir_filename = $home . "/.SessionCommander/" ;
 
 # Configuration File
-my $cfg_filename = $cfg_dir_filename . "MFW-SessionCommander.config" ;
+my $cfg_filename = $cfg_dir_filename . "SessionCommander.config" ;
 
 # Directory Mask
 my $DirMask = 0700;
@@ -152,8 +102,8 @@ my $DirMask = 0700;
 
 sub print_help()
 {
-	print "MFW Session Commander - Version $version\n";
-	print "Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Session Commander - Version $version\n";
+	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
 	print "\n";
 	print "Usage: $0 [options] SessionName\n";
 	print "\n";
@@ -167,17 +117,16 @@ sub print_help()
 	print "  --edit_config_gedit        - Edit configuration from x11\n";
 	print "\n";
 	print "Example:\n";
-	print "  ./$0 --start_session NORC-SSH\n";
+	print "  $0 --start_session NORC-SSH\n";
 	print "  This command load configuration for NORC server from configuration file, and start ssh session\n";
 	print "\n";
 }
 
 sub print_version()
 {
-	print "MFW Session Commander - Version $version\n";
-	print "Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Session Commander - Version $version\n";
+	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
 	print "\n";
-	print "If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...\n";
 }
 
 sub check_dir_file()
@@ -259,12 +208,10 @@ sub make_log_init()
 	my $return_value = 1;
 	my $init_value = "################################################################################
 #                                                                              #
-#  MFW Session Commander                                                       #
+#  Session Commander                                                           #
 #  Configuration  File                                                         #
 #                                                                              #
-#  If you value your sanity ... beware ... http://mfw.com.ar ... is alive ...  #
-#                                                                              #
-#  Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino\@gmail.com>      #
+#  Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>                   #
 #                                                                              #
 ################################################################################
 
@@ -308,8 +255,8 @@ localhost	ssh2	127.0.0.1	22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	0600	NULL	NULL	NU
 sub print_sessions_names()
 {
 
-	print "MFW Session Commander - Version $version\n";
-	print "Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Session Commander - Version $version\n";
+	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
 	print "\n";
 	print "Session Stored in configuration file:\n";
 
@@ -343,8 +290,8 @@ sub print_sessions_names()
 sub print_session_config()
 {
 
-	print "MFW Session Commander - Version $version\n";
-	print "Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Session Commander - Version $version\n";
+	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
 	print "\n";
 	print "Session Stored in configuration file:\n";
 
@@ -385,7 +332,7 @@ sub create_logfile()
 	{
 		
 		my $return_value = 1;
-		my $init_value = "-= MFW-SessionCommander - Version $version =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n-= LogFile Start - $nano =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n";
+		my $init_value = "-= SessionCommander - Version $version =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n-= LogFile Start - $nano =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n";
 
 		sysopen(INITCFGFILE, $file_to_init, O_RDWR|O_EXCL|O_CREAT , oct($LogMask));
 		printf INITCFGFILE $init_value;
@@ -404,8 +351,8 @@ sub create_logfile()
 sub start_session()
 {
 
-print "MFW Session Commander - Version $version\n";
-print "Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino\@gmail.com>\n";
+print "Session Commander - Version $version\n";
+print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
 print "\n";
 print "Starting ...\n";
 print " -->> Name: $Name - ComType: $ComType - HostName: $HostName - Port: $Port\n\n";
@@ -418,7 +365,7 @@ switch ($ComType)
 			{
 				$command = $tsocks . " ";
 			}
-			$command = $command . $ssh;
+			$command = $command . " " . $ssh;
 			if ($OptCom ne "NULL")
 			{
 				$command = $command . " " . $OptCom;
@@ -431,7 +378,7 @@ switch ($ComType)
 			{
 				$command = $command . " " . $User. "@";
 			}
-			$command = $command . $HostName . " -p " . $Port;
+			$command = $command . " " . $HostName . " -p " . $Port;
 			if ($SSHRemCom ne "NULL")
 			{
 				$command = $command . " " . $SSHRemCom;
@@ -461,7 +408,7 @@ switch ($ComType)
 			{
 				$command = $tsocks . " ";
 			}
-			$command = $command . $telnet;
+			$command = $command . " " . $telnet;
 			if ($OptCom ne "NULL")
 			{
 				$command = $command . " " . $OptCom;
@@ -716,8 +663,8 @@ return $return_value;
 
 sub edit_config_vi()
 {
-	print "MFW Session Commander - Version $version\n";
-	print "Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Session Commander - Version $version\n";
+	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
 	print "\n";
 	print "Configuration editor:\n";
 
@@ -737,8 +684,8 @@ sub edit_config_vi()
 
 sub edit_config_gedit()
 {
-	print "MFW Session Commander - Version $version\n";
-	print "Copyright © 2010 - MFW TechNet - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Session Commander - Version $version\n";
+	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
 	print "\n";
 	print "Configuration editor:\n";
 

@@ -1,5 +1,8 @@
 # SessionCommander
 
+![GitHub release](https://img.shields.io/github/release/pablomenino/SessionCommander.svg) 
+![GitHub](https://img.shields.io/github/license/pablomenino/SessionCommander.svg)
+
 **Version 0.5.3.2**
 
 SessionCommander Tool - A Session Manger Tool

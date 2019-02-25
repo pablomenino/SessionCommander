@@ -1,11 +1,10 @@
-# SessionCommander
+<h3 align="center">SessionCommander</h3>
+<p align="center">A Session Manger Tool</p>
 
-![GitHub release](https://img.shields.io/github/release/pablomenino/SessionCommander.svg) 
-![GitHub](https://img.shields.io/github/license/pablomenino/SessionCommander.svg)
-
-**Version 0.5.3.2**
-
-SessionCommander Tool - A Session Manger Tool
+<p align="center">
+<a href="https://github.com/pablomenino/SessionCommander/releases"><img src="https://img.shields.io/github/release/pablomenino/SessionCommander.svg"></a>
+<a href="./LICENSE"><img src="https://img.shields.io/github/license/pablomenino/SessionCommander.svg"></a>
+</p>
 
 This script was tested on Fedora 23 and Ubuntu 14.04, but is supposed to work on all linux distributions.
 

@@ -58,8 +58,6 @@ my $rm = `which rm`;
 my $tsocks = `which tsocks`;
 my $rdesktop = `which rdesktop`;
 my $vnc = `which vncviewer`;
-# my $tsocks = "/usr/bin/tsocks";
-# my $vnc = "/usr/bin/vncviewer";
 # Remove return line
 chomp($ssh);
 chomp($telnet);

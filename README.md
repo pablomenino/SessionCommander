@@ -2,8 +2,8 @@
 <p align="center">A Session Manger Tool</p>
 
 <p align="center">
-<a href="https://github.com/pablomenino/SessionCommander/releases"><img src="https://img.shields.io/github/release/pablomenino/SessionCommander.svg"></a>
-<a href="./LICENSE"><img src="https://img.shields.io/github/license/pablomenino/SessionCommander.svg"></a>
+<img src="https://img.shields.io/github/release/pablomenino/SessionCommander.svg">
+<img src="https://img.shields.io/github/license/pablomenino/SessionCommander.svg">
 </p>
 
 This script was tested on Fedora 23 and Ubuntu 14.04, but is supposed to work on all linux distributions.
@@ -22,4 +22,3 @@ This script was tested on Fedora 23 and Ubuntu 14.04, but is supposed to work on
 #### Usage
 
 TO-DO
-

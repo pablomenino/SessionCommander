@@ -3,9 +3,9 @@
 ################################################################################
 #                                                                              #
 #  Session Commander                                                           #
-#  Version 0.5.3.2                                                             #
+#  Version 0.6                                                                 #
 #                                                                              #
-#  Copyright © 2016 - Pablo Meniño <pablo.menino@gmail.com>                    #
+#  Copyright © 2023 - Pablo Meniño <pablo.menino@mfwlab.com>                   #
 #                                                                              #
 ################################################################################
 
@@ -26,24 +26,24 @@ use Fcntl;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.5.3.2";
-my $config_version = "0.5";
+my $version = "0.6";
+my $config_version = "0.6";
 
 # Configuration file format ... that can be opened
-my @version_check = ("0.1", "0.2", "0.3", "0.4", "0.5");
+my @version_check = ("0.6");
 
 # Home directory
 my $home = $ENV{"HOME"};
 
-# Creates an unusual filename based on nanoseconds so that
-# you don't accidentally overwrite another logfile.
-my $nano = `date '+%d-%m-%Y_%H-%M-%S'`;
+# Log file name ... don't accidentally overwrite another logfile.
+my $nano = `date '+%Y-%m-%d_%H-%M-%S'`;
 # Remove return line
 chomp($nano);
 $nano = "_" . $nano;
 
 # Adds the file extension
 my $extension_log=".log";
+# Remove escape characters from log file
 my $extension_log_fix=".fix.log";
 
 # The location of executable
@@ -52,8 +52,7 @@ my $telnet = `which telnet`;
 my $tee = `which tee`;
 my $tr = `which tr`;
 my $tar = `which tar`;
-my $vim = `which vim`;
-my $gedit = `which gedit`;
+my $nano_edit = `which nano`;
 my $rm = `which rm`;
 my $tsocks = `which tsocks`;
 my $rdesktop = `which rdesktop`;
@@ -64,23 +63,23 @@ chomp($telnet);
 chomp($tee);
 chomp($tr);
 chomp($tar);
-chomp($vim);
-chomp($gedit);
+chomp($nano_edit);
 chomp($rm);
 chomp($tsocks);
 chomp($rdesktop);
 chomp($vnc);
 
+# Prepare sock command in case you need it
 my $command_tsock_on = "source " . $tsocks . " on;";
 my $command_tsock_off = "source " . $tsocks . " off;";
 
-# The default directory to be store the log files
-my $logdir = $home . "/Syslog/" ;
+# Default directory to store the log files
+my $logdir = $home . "/SessionCommander/Logs/" ;
 
-# Show the command before running it?
+# Show the command before running it? (Debug)
 my $show_cmd = 0 ;
 
-# Command to execute
+# Command to execute // Prepare
 my $command = " " ;
 
 # Configuration variables
@@ -92,7 +91,7 @@ my $cfg_dir_filename = $home . "/.SessionCommander/" ;
 # Configuration File
 my $cfg_filename = $cfg_dir_filename . "SessionCommander.config" ;
 
-# Directory Mask
+# Directory Mask // Protect configuration file
 my $DirMask = 0700;
 
 #----------------------------------------------------------------------
@@ -101,7 +100,7 @@ my $DirMask = 0700;
 sub print_help()
 {
 	print "Session Commander - Version $version\n";
-	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Copyright © 2023 - Pablo Meniño <pablo.menino\@mfwlab.com.com>\n";
 	print "\n";
 	print "Usage: $0 [options] SessionName\n";
 	print "\n";
@@ -111,8 +110,7 @@ sub print_help()
 	print "  --start_session            - Start Session Stored in Configuration File\n";
 	print "  --print_sessions_names     - Print session names stored in configuration file\n";
 	print "  --print_session_config     - Print session config stored in configuration file\n";
-	print "  --edit_config_vi           - Edit configuration from console\n";
-	print "  --edit_config_gedit        - Edit configuration from x11\n";
+	print "  --edit_config_nano         - Edit configuration from console\n";
 	print "\n";
 	print "Example:\n";
 	print "  $0 --start_session NORC-SSH\n";
@@ -123,7 +121,7 @@ sub print_help()
 sub print_version()
 {
 	print "Session Commander - Version $version\n";
-	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Copyright © 2023 - Pablo Meniño <pablo.menino\@mfwlab.com>\n";
 	print "\n";
 }
 
@@ -178,17 +176,6 @@ sub make_log_dir()
 			$return_value = 0;
 		}
 
-		# Create directory ...
-		#if ( mkdir ($dir_to_check, $Mask_Dir) )
-		#{
-			#$return_value = 0;
-		#} 
-		#else 
-		#{
-			#$return_value = 1;
-			#print $!;
-		#}
-
 	}
 	else 
 	{
@@ -209,11 +196,11 @@ sub make_log_init()
 #  Session Commander                                                           #
 #  Configuration  File                                                         #
 #                                                                              #
-#  Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>                   #
+#  Copyright © 2023 - Pablo Meniño <pablo.menino\@mfwlab.com>                  #
 #                                                                              #
 ################################################################################
 
-ConfVersion	0.5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
+ConfVersion	0.6	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
 
 # IMPORTANT:
 #  Use TAB's to separate config.
@@ -237,7 +224,7 @@ ConfVersion	0.5	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL
 #   OptCom: Use extra options on command line.
 #   SSHRemCom: Remote command on SHH sesion.
 
-# Name	ComType	HostName	User	Port	Password	x11Forward	Loggin	LogPath	FixChars	LogMask	UseSock	OptCom	SSHRemCom
+# Name	ComType	HostName	Port	User	Password	x11Forward	Loggin	LogPath	FixChars	LogMask	UseSock	OptCom	SSHRemCom
 localhost	ssh2	127.0.0.1	22	NULL	NULL	NULL	NULL	NULL	NULL	NULL	0600	NULL	NULL	NULL
 
 # End file.
@@ -254,7 +241,7 @@ sub print_sessions_names()
 {
 
 	print "Session Commander - Version $version\n";
-	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Copyright © 2023 - Pablo Meniño <pablo.menino\@mfwlab.com>\n";
 	print "\n";
 	print "Session Stored in configuration file:\n";
 
@@ -289,7 +276,7 @@ sub print_session_config()
 {
 
 	print "Session Commander - Version $version\n";
-	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
+	print "Copyright © 2023 - Pablo Meniño <pablo.menino\@mfwlab.com>\n";
 	print "\n";
 	print "Session Stored in configuration file:\n";
 
@@ -350,7 +337,7 @@ sub start_session()
 {
 
 print "Session Commander - Version $version\n";
-print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
+print "Copyright © 2023 - Pablo Meniño <pablo.menino\@mfwlab.com>\n";
 print "\n";
 print "Starting ...\n";
 print " -->> Name: $Name - ComType: $ComType - HostName: $HostName - Port: $Port\n\n";
@@ -374,12 +361,19 @@ switch ($ComType)
 			}
 			if ($User ne "NULL")
 			{
-				$command = $command . " " . $User. "@";
+				$command = $command . " " . $User. "@" . $HostName;
 			}
-			$command = $command . " " . $HostName . " -p " . $Port;
+            else
+            {
+                $command = $command . " " . $HostName;
+            }
+			if ($Port ne "NULL")
+			{
+				$command = $command . " -p " . $Port;
+			}
 			if ($SSHRemCom ne "NULL")
 			{
-				$command = $command . " " . $SSHRemCom;
+				$command = $command . " " . "\"" . $SSHRemCom . "\"";
 			}
 			if ($Loggin eq "true")
 			{
@@ -391,8 +385,8 @@ switch ($ComType)
 				system($command_tsock_on);
 			}
 			$show_cmd && print "% $command\n" ;
-			system($command);
-			#system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
+			# Execute command
+			system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
 			# close tsocks
 			if ($UseSock eq "true")
 			{
@@ -426,8 +420,8 @@ switch ($ComType)
 				system($command_tsock_on);
 			}
 			$show_cmd && print "% $command\n" ;
-			system($command);
-			#system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
+			# Execute command
+			system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
 			# close tsocks
 			if ($UseSock eq "true")
 			{
@@ -461,8 +455,8 @@ switch ($ComType)
 				system($command_tsock_on);
 			}
 			$show_cmd && print "% $command\n" ;
-			system($command);
-			#system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
+			# Execute command
+			system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
 			# close tsocks
 			if ($UseSock eq "true")
 			{
@@ -496,8 +490,8 @@ switch ($ComType)
 				system($command_tsock_on);
 			}
 			$show_cmd && print "% $command\n" ;
-			system($command);
-			#system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
+			# Execute command
+			system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
 			# close tsocks
 			if ($UseSock eq "true")
 			{
@@ -533,7 +527,6 @@ sub fix_chars()
 			die "ERROR: chdir() exec failed: $!\n" 
 		}
 		$command = $command . " -czf \"" . $Name . $nano . $extension_log . ".tar.gz\" \"" . $Name . $nano . $extension_log . "\"";
-		#$command = $command . " -czvf \"" . $logdir . $LogPath . $Name . $nano . $extension_log . ".tar.gz\" \"" . $logdir . $LogPath . $Name . $nano . $extension_log . "\"";
 		$show_cmd && print "% $command\n" ;
 		system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
 		
@@ -544,7 +537,7 @@ sub fix_chars()
 		{
 			die "ERROR: chdir() exec failed: $!\n" 
 		}
-		$command = $command . " -f \"" . $Name . $nano . $extension_log . "\"";
+        $command = $command . " \"" . $Name . $nano . $extension_log . "\"";
 		$show_cmd && print "% $command\n" ;
 		system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
 		
@@ -659,7 +652,7 @@ return $return_value;
 
 }
 
-sub edit_config_vi()
+sub edit_config_nano()
 {
 	print "Session Commander - Version $version\n";
 	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
@@ -668,28 +661,7 @@ sub edit_config_vi()
 
 	if ( check_config_version() == 0 )
 	{
-		$command = $vim;
-		$command = $command . " " . $cfg_filename;
-		$show_cmd && print "% $command\n" ;
-		system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
-	}
-	else
-	{
-		print "ERROR: The configuration file is not a supported version.";
-		exit 0;
-	}
-}
-
-sub edit_config_gedit()
-{
-	print "Session Commander - Version $version\n";
-	print "Copyright © 2016 - Pablo Meniño <pablo.menino\@gmail.com>\n";
-	print "\n";
-	print "Configuration editor:\n";
-
-	if ( check_config_version() == 0 )
-	{
-		$command = $gedit;
+		$command = $nano_edit;
 		$command = $command . " " . $cfg_filename;
 		$show_cmd && print "% $command\n" ;
 		system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
@@ -741,13 +713,9 @@ else
 		{
 			print_version();
 		}
-		case "--edit_config_vi"
+		case "--edit_config_nano"
 		{
-			edit_config_vi();
-		}
-		case "--edit_config_gedit"
-		{
-			edit_config_gedit();
+			edit_config_nano();
 		}
 		case "--start_session"
 		{

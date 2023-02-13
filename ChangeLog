@@ -1,5 +1,13 @@
 Version Control:
 
+    * 0.6 (13-02-2023)
+      - Removed vim
+      - Removed gedit
+      + Added nano
+      * Changed file log name (ISO)
+      * Removed force in rm command
+      + Added BASH Autocomplete for session name
+
     * 0.5.3.2 (15-02-2016)
       + Project renamed to SessionCommander.
       + General bug fixes.

@@ -29,6 +29,8 @@ nano ~/.bashrc
 export PATH="$HOME/Projects/gitmfwlab/mfwlab/public/sessioncommander/:$PATH"
 ```
 
+NOTE: Where did you download the repository.
+
 To use BASH Autocomplete for session name, add this to .bashrc:
 
 nano ~/.bashrc
@@ -41,11 +43,11 @@ _SessionCommander()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts=$(egrep -v '^#|^ConfVersion|^$' .SessionCommander/SessionCommander.config |  awk -F '\t' '{print $1}')
-
+    opts="$opts --print_help --print_version --start_session --print_sessions_names --print_session_config --edit_config_nano"
     COMPREPLY=( $(compgen -W "$opts" -- ${cur}) )
     return 0
 }
-complete -F _SessionCommander SessionCommander
-```
+complete -F _SessionCommander SessionCommander.pl
+``
 
 TO-O

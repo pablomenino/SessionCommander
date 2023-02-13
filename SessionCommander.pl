@@ -3,7 +3,7 @@
 ################################################################################
 #                                                                              #
 #  Session Commander                                                           #
-#  Version 0.6                                                                 #
+#  Version 0.6.1                                                               #
 #                                                                              #
 #  Copyright © 2023 - Pablo Meniño <pablo.menino@mfwlab.com>                   #
 #                                                                              #
@@ -26,7 +26,7 @@ use Fcntl;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.6";
+my $version = "0.6.1";
 my $config_version = "0.6";
 
 # Configuration file format ... that can be opened
@@ -47,16 +47,16 @@ my $extension_log=".log";
 my $extension_log_fix=".fix.log";
 
 # The location of executable
-my $ssh = `which ssh`;
-my $telnet = `which telnet`;
-my $tee = `which tee`;
-my $tr = `which tr`;
-my $tar = `which tar`;
-my $nano_edit = `which nano`;
-my $rm = `which rm`;
-my $tsocks = `which tsocks`;
-my $rdesktop = `which rdesktop`;
-my $vnc = `which vncviewer`;
+my $ssh = `which ssh 2>&1`;
+my $telnet = `which telnet 2>&1`;
+my $tee = `which tee 2>&1`;
+my $tr = `which tr 2>&1`;
+my $tar = `which tar 2>&1`;
+my $nano_edit = `which nano 2>&1`;
+my $rm = `which rm 2>&1`;
+my $tsocks = `which tsocks 2>&1`;
+my $rdesktop = `which rdesktop 2>&1`;
+my $vnc = `which vncviewer 2>&1`;
 # Remove return line
 chomp($ssh);
 chomp($telnet);
@@ -77,7 +77,7 @@ my $command_tsock_off = "source " . $tsocks . " off;";
 my $logdir = $home . "/SessionCommander/Logs/" ;
 
 # Show the command before running it? (Debug)
-my $show_cmd = 0 ;
+my $show_cmd = 1 ;
 
 # Command to execute // Prepare
 my $command = " " ;
@@ -386,7 +386,14 @@ switch ($ComType)
 			}
 			$show_cmd && print "% $command\n" ;
 			# Execute command
-			system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
+			if ($Password ne "NULL")
+			{
+				system( qq{expect -c 'spawn  ssh localhost; expect '*yes/no*' {send "yes\r"; exp_continue;} '*?assword:*' {send "$Password\r"}; interact;'} ) == 0 or die "ERROR: system() exec failed: $!\n" ;
+			}
+            else
+            {
+                system($command) == 0 or die "ERROR: system() exec failed: $!\n" ;
+            }
 			# close tsocks
 			if ($UseSock eq "true")
 			{

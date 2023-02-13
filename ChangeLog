@@ -1,5 +1,9 @@
 Version Control:
 
+    * 0.6.1 (13-02-2023)
+      + Hide warnings (which command)
+      + Use password in configuration file (Expect)
+
     * 0.6 (13-02-2023)
       - Removed vim
       - Removed gedit

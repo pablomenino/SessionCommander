@@ -3,7 +3,7 @@
 ################################################################################
 #                                                                              #
 #  Session Commander                                                           #
-#  Version 0.6.1                                                               #
+#  Version 0.6.2                                                               #
 #                                                                              #
 #  Copyright © 2023 - Pablo Meniño <pablo.menino@mfwlab.com>                   #
 #                                                                              #
@@ -26,7 +26,7 @@ use Fcntl;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.6.1";
+my $version = "0.6.2";
 my $config_version = "0.6";
 
 # Configuration file format ... that can be opened
@@ -77,7 +77,7 @@ my $command_tsock_off = "source " . $tsocks . " off;";
 my $logdir = $home . "/SessionCommander/Logs/" ;
 
 # Show the command before running it? (Debug)
-my $show_cmd = 1 ;
+my $show_cmd = 0 ;
 
 # Command to execute // Prepare
 my $command = " " ;
@@ -93,6 +93,10 @@ my $cfg_filename = $cfg_dir_filename . "SessionCommander.config" ;
 
 # Directory Mask // Protect configuration file
 my $DirMask = 0700;
+
+# Logging expect vars
+my $command_nolog = "";
+my $logfile_expect = "";
 
 #----------------------------------------------------------------------
 # Functions -----------------------------------------------------------
@@ -377,7 +381,9 @@ switch ($ComType)
 			}
 			if ($Loggin eq "true")
 			{
-				$command = $command . " | $tee -a \"" . $logdir . $LogPath . $Name . $nano . $extension_log . "\"";
+				$command_nolog = $command;
+                $logfile_expect = "\"" . $logdir . $LogPath . $Name . $nano . $extension_log . "\"";
+                $command = $command . " | $tee -a \"" . $logdir . $LogPath . $Name . $nano . $extension_log . "\"";
 			}
 			# Open tsocks
 			if ($UseSock eq "true")
@@ -386,9 +392,13 @@ switch ($ComType)
 			}
 			$show_cmd && print "% $command\n" ;
 			# Execute command
-			if ($Password ne "NULL")
+			if ( ($Password ne "NULL") and ($Loggin eq "true"))
 			{
-				system( qq{expect -c 'spawn  ssh localhost; expect '*yes/no*' {send "yes\r"; exp_continue;} '*?assword:*' {send "$Password\r"}; interact;'} ) == 0 or die "ERROR: system() exec failed: $!\n" ;
+                system( qq{expect -c 'spawn  $command_nolog; log_file $logfile_expect; expect '*yes/no*' {send "yes\r"; exp_continue;} '*?assword:*' {send "$Password\r"}; interact;'} ) == 0 or die "ERROR: system() exec failed: $!\n" ;
+			}
+			elsif ($Password ne "NULL")
+			{
+                system( qq{expect -c 'spawn  $command; expect '*yes/no*' {send "yes\r"; exp_continue;} '*?assword:*' {send "$Password\r"}; interact;'} ) == 0 or die "ERROR: system() exec failed: $!\n" ;
 			}
             else
             {

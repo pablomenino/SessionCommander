@@ -1,5 +1,8 @@
 Version Control:
 
+    * 0.6.2 (15-02-2023)
+      * Fix expect for password management
+
     * 0.6.1 (13-02-2023)
       + Hide warnings (which command)
       + Use password in configuration file (Expect)

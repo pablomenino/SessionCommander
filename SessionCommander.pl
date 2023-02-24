@@ -3,7 +3,7 @@
 ################################################################################
 #                                                                              #
 #  Session Commander                                                           #
-#  Version 0.6.3                                                               #
+#  Version 0.6.4                                                               #
 #                                                                              #
 #  Copyright © 2023 - Pablo Meniño <pablo.menino@mfwlab.com>                   #
 #                                                                              #
@@ -27,7 +27,7 @@ use Term::Menus;
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.6.3";
+my $version = "0.6.4";
 my $config_version = "0.6";
 
 # Configuration file format ... that can be opened
@@ -56,8 +56,7 @@ my $tar = `which tar 2>&1`;
 my $nano_edit = `which nano 2>&1`;
 my $rm = `which rm 2>&1`;
 my $tsocks = `which tsocks 2>&1`;
-my $rdesktop = `which rdesktop 2>&1`;
-my $vnc = `which vncviewer 2>&1`;
+my $remmina = `which remmina 2>&1`;
 # Remove return line
 chomp($ssh);
 chomp($telnet);
@@ -67,8 +66,7 @@ chomp($tar);
 chomp($nano_edit);
 chomp($rm);
 chomp($tsocks);
-chomp($rdesktop);
-chomp($vnc);
+chomp($remmina);
 
 # Prepare sock command in case you need it
 my $command_tsock_on = "source " . $tsocks . " on;";
@@ -455,20 +453,13 @@ switch ($ComType)
 			{
 				$command = $tsocks . " ";
 			}
-			if ($Password ne "NULL")
-			{
-				$command = $command . " echo \"" . $Password . "\" | ";
-			}
-			$command = $command . $vnc;
-			if ($Password ne "NULL")
-			{
-				$command = $command . " -passwdInput true";
-			}
+			$command = $command . $remmina;
 			if ($OptCom ne "NULL")
 			{
 				$command = $command . " " . $OptCom;
 			}
-			$command = $command . " " . $HostName . "::" . $Port;
+			$command = $command . " --no-tray-icon -c ";
+			$command = $command . " " . $HostName;
 			# Open tsocks
 			if ($UseSock eq "true")
 			{
@@ -490,20 +481,13 @@ switch ($ComType)
 			{
 				$command = $tsocks . " ";
 			}
-			$command = $command . $rdesktop;
-			if ($User ne "NULL")
-			{
-				$command = $command . " -u " . $User;
-			}
-			if ($Password ne "NULL")
-			{
-				$command = $command . " -p " . $Password;
-			}
+			$command = $command . $remmina;
 			if ($OptCom ne "NULL")
 			{
 				$command = $command . " " . $OptCom;
 			}
-			$command = $command . " " . $HostName . ":" . $Port;
+			$command = $command . " --no-tray-icon -c ";
+			$command = $command . " " . $HostName;
 			# Open tsocks
 			if ($UseSock eq "true")
 			{
@@ -714,7 +698,7 @@ sub display_menu()
 			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = split( "\t", $_, 15);
 			if ($Name ne "ConfVersion")
 			{
-                push @conn_list, $Name;
+                push @conn_list, "$ComType -> $Name";
 			}
 
 		}
@@ -869,7 +853,8 @@ else
             else
             {
                 # Load from config
-                $ARGV[1] = $session_name;
+                my ($session_comtype_split, $session_name_split) = split(" -> ", $session_name);
+                $ARGV[1] = $session_name_split;
                 if ( read_config() == 0 )
                 {
             

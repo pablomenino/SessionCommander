@@ -1,5 +1,11 @@
 Version Control:
 
+    * 0.6.4 (24-02-2023)
+      - Removed VNC and rdesktop
+      + Added Remmia for RDP and VNC
+      * For VNC and RDP Hostname variable is the configuration file (path to .remmina file for connection)
+      + ComType is shown in the menu (and works as a filter)
+
     * 0.6.3 (24-02-2023)
       + Menu to select connection name
       + Filter menu items (RegExp)

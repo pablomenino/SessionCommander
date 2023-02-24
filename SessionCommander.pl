@@ -3,7 +3,7 @@
 ################################################################################
 #                                                                              #
 #  Session Commander                                                           #
-#  Version 0.6.2                                                               #
+#  Version 0.6.3                                                               #
 #                                                                              #
 #  Copyright © 2023 - Pablo Meniño <pablo.menino@mfwlab.com>                   #
 #                                                                              #
@@ -21,12 +21,13 @@ use File::Basename;
 use Switch;
 use File::Path;
 use Fcntl;
+use Term::Menus;
 
 #----------------------------------------------------------------------
 # Variables -----------------------------------------------------------
 
 # Version Control
-my $version = "0.6.2";
+my $version = "0.6.3";
 my $config_version = "0.6";
 
 # Configuration file format ... that can be opened
@@ -115,6 +116,8 @@ sub print_help()
 	print "  --print_sessions_names     - Print session names stored in configuration file\n";
 	print "  --print_session_config     - Print session config stored in configuration file\n";
 	print "  --edit_config_nano         - Edit configuration from console\n";
+	print "  --menu                     - Display a menu to select connection from a list\n";
+	print "  --menu item_to_filter      - Display a menu and filter menu items from the list (like search)\n";
 	print "\n";
 	print "Example:\n";
 	print "  $0 --start_session NORC-SSH\n";
@@ -690,6 +693,54 @@ sub edit_config_nano()
 	}
 }
 
+sub display_menu()
+{
+
+	my $nth = "";
+    my @conn_list;
+    my ($filter_exp) = @_;
+
+	# CFG
+	open (FILECFG, $cfg_filename);
+	while ( (<FILECFG>) )
+	{
+		chomp($_);
+		$nth = substr($_, 0, 1);
+	
+		# If not caracter NULL or #, then read config.
+		if ( $nth ne "#" and $nth ne "" )
+		{
+
+			($Name, $ComType, $HostName, $Port, $User, $Password, $x11Forward, $Loggin, $LogPath, $FixChars, $FixCompactOriginal, $LogMask, $UseSock, $OptCom, $SSHRemCom) = split( "\t", $_, 15);
+			if ($Name ne "ConfVersion")
+			{
+                push @conn_list, $Name;
+			}
+
+		}
+	}
+	close (FILECFG);
+
+    my %Menu_1=(
+    
+    Name   => 'Menu_1',
+    Display => 15,
+    Item_1 => {
+        Text   => "]Convey[",
+        Convey => \@conn_list,
+        Include => qr/$filter_exp/i,
+    },
+    Select => 'One',
+	Banner => "Session Commander - Version $version\n".
+	"Copyright © 2023 - Pablo Meniño <pablo.menino\@mfwlab.com>\n".
+	"\n".
+	"Session Stored in configuration file:\n"
+    );
+    
+    my @selections=&Menu(\%Menu_1);
+    return  @selections[0];
+}
+
 #----------------------------------------------------------------------
 # Main - Begin --------------------------------------------------------
 
@@ -805,6 +856,40 @@ else
 					exit 0;
 				}
 			}
+		}
+		case "--menu"
+		{
+			# Display menu
+            my $filter_exp = $ARGV[1];
+            my $session_name = &display_menu($filter_exp);
+            if ($session_name eq "]quit[")
+			{
+				print_help();
+			}
+            else
+            {
+                # Load from config
+                $ARGV[1] = $session_name;
+                if ( read_config() == 0 )
+                {
+            
+                    if ( $Loggin eq "true" )
+                    {
+                        &create_logfile($logdir . $LogPath, $logdir . $LogPath . $Name . $nano . $extension_log);
+                    }
+                    start_session();
+                    if ( $FixChars eq "true" )
+                    {
+                        fix_chars();
+                    }
+            
+                }
+                else
+                {
+                    print "ERROR: The session name not found in configuration file. Try --print_sessions_names option to see all session names stored in configuration file.";
+                    exit 0;
+                }
+            }
 		}
 		else
 		{

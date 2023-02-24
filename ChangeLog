@@ -1,5 +1,9 @@
 Version Control:
 
+    * 0.6.3 (24-02-2023)
+      + Menu to select connection name
+      + Filter menu items (RegExp)
+
     * 0.6.2 (15-02-2023)
       * Fix expect for password management
 

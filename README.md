@@ -18,6 +18,8 @@ This script was tested on Fedora 23 and Ubuntu 14.04, but is supposed to work on
 
 * Gnome 3
 * Perl
+* sudo dnf install 'perl(Term::Menus)'
+* sudo cpan Term::Menus
 
 #### Usage
 
